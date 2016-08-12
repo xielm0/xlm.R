@@ -1,0 +1,62 @@
+ hive -e "
+select
+item_third_cate_cd,
+nvl(s_ad_nums,0) as s_ad_nums,                             --V2   展现广告数          
+nvl(s_bill_ad_nums,0) as s_bill_ad_nums,                   --V3   展现付费广告数      
+nvl(s_uin_nums,0) as s_uin_nums,                           --V4   展现广告主数        
+nvl(s_bill_uin_nums,0) as s_bill_uin_nums,                 --V5   展现付费广告主数    
+nvl(s_show_nums,0) as s_show_nums,                         --V6   展现次数            
+nvl(s_bill_show_nums,0) as s_bill_show_nums,               --V7   展现付费次数        
+nvl(s_show_cost,0) as s_show_cost,                         --V8   展现消耗            
+nvl(s_avg_price,0) as s_avg_price,                         --V9   展现商品均价        
+nvl(s_bill_avg_price,0) as s_bill_avg_price,               --V10  展现付费商品均价    
+nvl(c_ad_nums,0) as c_ad_nums,                             --V11  点击广告数          
+nvl(c_bill_ad_nums,0) as c_bill_ad_nums,                   --V12  点击付费广告数      
+nvl(c_uin_nums,0) as c_uin_nums,                           --V13  点击广告主数        
+nvl(c_bill_uin_nums,0) as c_bill_uin_nums,                 --V14  点击付费广告主数    
+nvl(c_click_nums,0) as c_click_nums,                       --V15  点击次数            
+nvl(c_bill_click_nums,0) as c_bill_click_nums,             --V16  点击付费次数        
+nvl(c_click_cost,0) as c_click_cost,                       --V17  点击消耗            
+nvl(c_avg_price,0) as c_avg_price,                         --V18  点击商品均价        
+nvl(c_bill_avg_price,0) as c_bill_avg_price,               --V19  点击付费商品均价    
+nvl(c_avg_bid_price,0) as c_avg_bid_price,                 --V20  点击平均出价        
+nvl(cash_rate,0) as cash_rate                              --V21  投放变现率          
+from app.app_szad_t_xp_cate_his_day                           
+where ftime=20151123 and  cash_rate>0                         
+;                                                             
+" > cate_day_new.txt                                          
+                                                              
+                                                              
+data_date               string                  数据日期                   
+cate_times              int                     投放次数                
+item_third_cate_cd      int                     三级类目id              
+item_third_cate_name    string                  三级类目名称              
+item_second_cate_name   string                  二级类目名称              
+item_first_cate_name    string                  一级类目名称              
+s_ad_nums               bigint                  展现广告数               
+s_bill_ad_nums          bigint                  展现付费广告数             
+s_uin_nums              bigint                  展现广告主数              
+s_bill_uin_nums         bigint                  展现付费广告主数            
+s_show_nums             bigint                  展现次数                
+s_bill_show_nums        bigint                  展现付费次数              
+s_show_cost             decimal                 展现消耗                
+s_avg_price             decimal                 展现商品均价              
+s_bill_avg_price        decimal                 展现付费商品均价            
+c_ad_nums               bigint                  点击广告数               
+c_bill_ad_nums          bigint                  点击付费广告数             
+c_uin_nums              bigint                  点击广告主数              
+c_bill_uin_nums         bigint                  点击付费广告主数            
+c_click_nums            bigint                  点击次数                
+c_bill_click_nums       bigint                  点击付费次数              
+c_click_cost            decimal                 点击消耗                
+c_avg_price             double                  点击商品均价              
+c_bill_avg_price        double                  点击付费商品均价            
+c_avg_bid_price         decimal                 点击平均出价              
+cash_rate               decimal                 投放变现率               
+ad_nums                 bigint                  投放广告数               
+realcost_money          decimal                 一跳现金消耗              
+queries                 decimal                 二跳请求次数              
+impressions             bigint                  二跳展现次数              
+clicks                  bigint                  二跳点击次数              
+cost                    decimal                 二跳总扣费               
+cash_cost               decimal                 二跳现金扣费  
