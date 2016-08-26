@@ -105,21 +105,25 @@ predict.naiveBayes <- function(object,
                                ...) {
     type <- match.arg(type)
     newdata <- as.data.frame(newdata)
-    attribs <- match(names(object$tables), names(newdata))
+    attribs <- match(names(object$tables), names(newdata)) #return [1]  1  2  3  4  5  6  7  8  9 10 11
     isnumeric <- sapply(newdata, is.numeric)
     newdata <- data.matrix(newdata)
-    L <- sapply(1:nrow(newdata), function(i) {
+    L <- sapply(1:nrow(newdata), function(i) {  #对每行进行循环
         ndata <- newdata[i, ]
-        L <- log(object$apriori) + apply(log(sapply(seq_along(attribs),
+        L <- log(object$apriori) + apply(log(sapply(seq_along(attribs), #对每个属性进行循环
             function(v) {
-                nd <- ndata[attribs[v]]
-                if (is.na(nd)) rep(1, length(object$apriori)) else {
-                  prob <- if (isnumeric[attribs[v]]) {
-                    msd <- object$tables[[v]]
-                    msd[, 2][msd[, 2] == 0] <- threshold
-                    dnorm(nd, msd[, 1], msd[, 2])
-                  } else object$tables[[v]][, nd]
-                  prob[prob == 0] <- threshold
+                nd <- ndata[attribs[v]] #属性对应的值，如gender=0
+                if (is.na(nd)) {
+                    rep(1, length(object$apriori)) 
+                }else {
+                  prob <- if (isnumeric[attribs[v]]) {#如果是数值型
+                      msd <- object$tables[[v]]
+                      msd[, 2][msd[, 2] <= 0] <- threshold
+                      dnorm(nd, msd[, 1], msd[, 2])
+                    } else {                     #如果是因子型
+                        object$tables[[v]][, nd] #返回属性对应值的p
+                    }
+                  prob[prob <= 0] <- threshold
                   prob
                 }
             })), 1, sum)
