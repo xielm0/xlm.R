@@ -1,9 +1,18 @@
 ﻿udf_logmessage<-function(x){
     if(NROW(x)>1){
-        print(paste(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), ": ", sep=""))
+        print(paste(format(Sys.time(), "[%Y-%m-%d %H:%M:%S]"), ": ", sep=""))
         print(x)
     }else{
-        print(paste(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), ": ", x, sep=""))
+        print(paste(format(Sys.time(), "[%Y-%m-%d %H:%M:%S]"), ": ", x, sep=""))
+    }
+}
+
+udf_logmessage_v2<-function(x,program){
+    if(NROW(x)>1){
+        print(paste(program, format(Sys.time(), "[%Y-%m-%d %H:%M:%S]"), sep="|"))
+        print(x)
+    }else{
+        print(paste(program, format(Sys.time(), "[%Y-%m-%d %H:%M:%S]"), x, sep="|"))
     }
 }
 
@@ -110,3 +119,43 @@ udf_colWeight<-function(x){
 
     return(v_vec_weight)
 }
+
+udf_colCenter<-function(x, xProbs=0.9, xClusters=10){
+    v_vec_retobj<-x[x>0]
+
+    #全零数据默认类标号为0
+    if(NROW(v_vec_retobj)==0) return(rep(c(0),xClusters[1]+1))
+
+    #特征属性排序
+    v_vec_ordobj<-order(v_vec_retobj, na.last = TRUE, decreasing = FALSE)
+    #获取极大异常点临界值，即百分位xProbs所在特征属性的值
+    v_i_limitval<-v_vec_retobj[v_vec_ordobj[quantile(v_vec_ordobj, probs=xProbs)]]
+
+    #等待离散化的数据
+    v_vec_retobj<-x[x>0&x<=v_i_limitval]
+    #保存索引值
+    v_vec_idxobj<-which(x>0&x<=v_i_limitval)
+
+    #不同值个数小于xClusters[1]
+    if(length(unique(v_vec_retobj))>xClusters[1]){
+        #K-均值聚为xClusters类
+        v_l_clusterobj<-kmeans(v_vec_retobj, xClusters[1], iter.max=100)
+        
+        #按类中心值从小到大排序 
+        v_vec_center<-v_l_clusterobj$centers[order(v_l_clusterobj$centers, decreasing = FALSE)]       
+ 
+    }else{
+        v_vec_center<-unique(v_vec_retobj)
+        v_vec_tmpobj<-ceiling(v_vec_center/max(v_vec_center)*xClusters[1])
+        v_df_tmpobj<-data.frame(v_vec_center, v_vec_tmpobj)
+        v_df_tmpobj<-merge(v_df_tmpobj, seq(1, xClusters[1], 1), by.x=2, by.y=1, all.y=TRUE)
+        #v_df_tmpobj[apply(v_df_tmpobj, 2, is.na)]<-0
+        v_vec_center<-v_df_tmpobj[order(v_df_tmpobj[,1], na.last = TRUE, decreasing = FALSE), 2]
+    }
+    
+    return(c(0, v_vec_center))
+}
+
+
+udf_center<-function(x){return(apply(x, MARGIN=2, udf_colCenter))}
+
